@@ -163,8 +163,6 @@ export async function getCombinedMenu() {
     .select()
     .single();
 
-  let menuId = menuDia.id;
-
   if (errorPadrao) {
     console.error("Erro ao buscar opções padrão:", errorPadrao);
     return null;
