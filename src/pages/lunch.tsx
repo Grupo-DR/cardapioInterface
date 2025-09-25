@@ -71,6 +71,7 @@ export default function VisitForm() {
         .single();
 
       if (error) {
+        console.log(insertData);
         console.error("Erro insert respostas:", error);
         toast.error("Erro ao salvar escolha.");
       } else {
