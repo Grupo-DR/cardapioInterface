@@ -23,7 +23,7 @@ type Menu = {
   options: string[];
 };
 
-export default function VisitForm() {
+export default function Lunch() {
   const [menu, setMenu] = useState<Menu | null>(null);
   const [nome, setNome] = useState("");
   const [cc, setCc] = useState("");
