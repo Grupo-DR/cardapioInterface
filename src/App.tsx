@@ -15,6 +15,7 @@ export default function App() {
   const { accounts, inProgress } = useMsal();
   const location = useLocation();
 
+  // Se não estiver no /lunch, exige login
   useEffect(() => {
     if (
       location.pathname !== "/lunch" &&
@@ -25,6 +26,7 @@ export default function App() {
     }
   }, [accounts, inProgress, location]);
 
+  // Enquanto tenta logar, mostra um "loading"
   if (
     location.pathname !== "/lunch" &&
     (inProgress !== InteractionStatus.None || accounts.length === 0)
@@ -34,13 +36,17 @@ export default function App() {
 
   return (
     <div className="p-5">
-      {accounts.length !== 0 ? <Header /> : null}
+      {/* Só mostra o header se o usuário estiver logado */}
+      {accounts.length > 0 && <Header />}
+
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/employes" element={<AddEmploye />} />
         <Route path="/menu" element={<Menu />} />
+        {/* rota pública */}
         <Route path="/lunch" element={<Lunch />} />
       </Routes>
+
       <Toaster />
     </div>
   );
