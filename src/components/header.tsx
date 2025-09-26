@@ -33,6 +33,12 @@ export default function Header() {
           >
             Cádapio do dia
           </Link>
+          <Link
+            className="bg-slate-200 hover:bg-slate-300 py-1 px-2 rounded"
+            to="/lunch"
+          >
+            Escolha de terceiro
+          </Link>
         </nav>
       </div>
 
