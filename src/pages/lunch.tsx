@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import { supabase } from "@/lib/supabaseClient";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner"; // se usar sonner; senão use alert()
+import { toast } from "sonner";
 import supabase from "@/lib/supabase";
 import { getCombinedMenu, getTodayMenu } from "@/lib/api/supabaseApi";
 
@@ -76,7 +75,6 @@ export default function Lunch() {
         toast.error("Erro ao salvar escolha.");
       } else {
         toast.success("Escolha registrada com sucesso!");
-        // limpa form
         setNome("");
         setCc("");
         setEscolha("");

@@ -22,23 +22,47 @@ export const AddEmploye = () => {
   const [selectedEmploye, setSelectedEmploye] = useState<any>(null);
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
+  const [numeroCru, setNumeroCru] = useState("");
   const [newEmploye, setNewEmploye] = useState({
     nome: "",
     cc: "",
     numero: "",
   });
 
-  async function fetchData() {
-    const data = await getEmployes();
-    setEmployes(data);
-  }
-
   function handleEdit(employe: any) {
     setSelectedEmploye(employe);
     setOpenEdit(true);
   }
 
+  function formatarTelefone(input: string): {
+    formatado: string;
+    cru: string;
+  } {
+    let valor = input.replace(/\D/g, "");
+    if (valor.length > 13) valor = valor.substring(0, 13);
+    let formatado = "";
+    if (valor.length > 0) formatado = "+" + valor.substring(0, 2);
+    if (valor.length >= 3) formatado += " (" + valor.substring(2, 4);
+    if (valor.length >= 4) formatado += ") ";
+    if (valor.length >= 5 && valor.length <= 9) formatado += valor.substring(4);
+    if (valor.length >= 10)
+      formatado += valor.substring(4, 9) + "-" + valor.substring(9);
+
+    return { formatado, cru: valor };
+  }
+
+  const handleNumeroChange = (e: any) => {
+    const { formatado, cru } = formatarTelefone(e.target.value);
+
+    setNewEmploye({ ...newEmploye, numero: formatado });
+    setNumeroCru(cru);
+  };
+
   useEffect(() => {
+    async function fetchData() {
+      const data = await getEmployes();
+      setEmployes(data);
+    }
     fetchData();
   }, []);
 
@@ -49,26 +73,29 @@ export const AddEmploye = () => {
         <PlusIcon /> Adicionar Funcionário
       </Button>
       {employes &&
-        employes.map(({ id, nome, cc, numero }) => (
-          <div
-            key={id}
-            className="my-2 p-2 bg-slate-200 rounded items-center flex justify-between"
-          >
-            <div>
-              <p>Nome: {nome}</p>
-              <p>CC: {cc}</p>
-              <span>Número: {numero}</span>
-            </div>
-            <Button
-              variant="secondary"
-              size="icon"
-              className="size-8"
-              onClick={() => handleEdit({ id, nome, cc, numero })}
+        employes.map(({ id, nome, cc, numero }) => {
+          const { formatado } = formatarTelefone(numero);
+          return (
+            <div
+              key={id}
+              className="my-2 p-2 bg-slate-200 rounded items-center flex justify-between"
             >
-              <DotsThreeVerticalIcon weight="bold" />
-            </Button>
-          </div>
-        ))}
+              <div>
+                <p>Nome: {nome}</p>
+                <p>CC: {cc}</p>
+                <span>Número: {formatado}</span>
+              </div>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="size-8"
+                onClick={() => handleEdit({ id, nome, cc, numero })}
+              >
+                <DotsThreeVerticalIcon weight="bold" />
+              </Button>
+            </div>
+          );
+        })}
 
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>
         <DialogContent>
@@ -111,11 +138,11 @@ export const AddEmploye = () => {
                 <Label htmlFor="numero">Número</Label>
                 <Input
                   id="numero"
-                  value={selectedEmploye.numero}
+                  value={formatarTelefone(selectedEmploye.numero).formatado}
                   onChange={(e) =>
                     setSelectedEmploye({
                       ...selectedEmploye,
-                      numero: e.target.value,
+                      numero: formatarTelefone(e.target.value).cru,
                     })
                   }
                 />
@@ -207,9 +234,8 @@ export const AddEmploye = () => {
               <Input
                 id="numeroAdd"
                 value={newEmploye.numero}
-                onChange={(e) =>
-                  setNewEmploye({ ...newEmploye, numero: e.target.value })
-                }
+                onChange={handleNumeroChange}
+                maxLength={19}
               />
             </div>
 
@@ -217,11 +243,15 @@ export const AddEmploye = () => {
               type="button"
               className="w-full"
               onClick={async () => {
-                const novo: any = await addEmploye(newEmploye);
+                const payload = {
+                  ...newEmploye,
+                  numero: numeroCru,
+                };
+                const novo: any = await addEmploye(payload);
                 if (novo && novo.length > 0) {
-                  setEmployes((prev) => [...(prev ?? []), novo[0]]); // adiciona o novo item à lista
+                  setEmployes((prev) => [...(prev ?? []), novo[0]]);
                 }
-                setNewEmploye({ nome: "", cc: "", numero: "" }); // limpa os campos
+                setNewEmploye({ nome: "", cc: "", numero: "" });
                 setOpenAdd(false);
               }}
             >
