@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
-import { getCombinedMenu, getTodayMenu } from "@/lib/api/supabaseApi";
+import { getCombinedMenu, getTomorrowMenu } from "@/lib/api/supabaseApi";
 
 type Menu = {
   id: number;
@@ -32,10 +32,10 @@ export default function Lunch() {
   useEffect(() => {
     async function fetchMenu() {
       const data = await getCombinedMenu();
-      const todayMenu = await getTodayMenu();
+      const todayMenu = await getTomorrowMenu();
+      // const todayMenu = await getTodayMenu();
       if (data) setMenu({ ...data, data: todayMenu.data, id: todayMenu.id });
     }
-
     fetchMenu();
   }, []);
 

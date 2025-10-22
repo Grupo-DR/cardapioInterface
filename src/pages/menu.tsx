@@ -57,8 +57,6 @@ export const Menu = () => {
           </Button>
         </div>
       )}
-
-      {/* Modal de edição */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>
         <DialogContent>
           <DialogHeader>
@@ -67,7 +65,6 @@ export const Menu = () => {
               Atualize as informações do cardápio selecionado.
             </DialogDescription>
           </DialogHeader>
-
           {selectedMenu && (
             <form className="space-y-4">
               <div>
@@ -109,23 +106,19 @@ export const Menu = () => {
                   }
                 />
               </div>
-
               <Button
                 type="button"
                 className="w-full"
                 onClick={async () => {
                   if (!selectedMenu) return;
-
                   const atualizado = await updateMenu(selectedMenu.id, {
                     primeira: selectedMenu.primeira,
                     segunda: selectedMenu.segunda,
                     guarnicao: selectedMenu.guarnicao,
                   });
-
                   if (atualizado && atualizado.length > 0) {
-                    setMenu(atualizado[0]); // atualiza na tela
+                    setMenu(atualizado[0]);
                   }
-
                   setOpenEdit(false);
                 }}
               >

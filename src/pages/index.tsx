@@ -71,7 +71,6 @@ export default function HomePage() {
 
   async function exportRespostasToExcel() {
     try {
-      // Ajuste o filtro conforme necessário (ex.: respostas do dia)
       const hoje = new Date().toISOString().split("T")[0];
 
       const { data, error } = await supabase
@@ -98,12 +97,9 @@ export default function HomePage() {
       const sheetData = [
         ["Nome", "Centro de Custo", "Escolha"],
         ...data.map((item: any) => [
-          // nome: prioriza convidado > funcionario
           item.nome_convidado || item.funcionarios?.nome || "",
-          // cc: prioriza cc_convidado > funcionario cc
-          item.cc_convidado || item.funcionarios?.cc || "",
-          // escolha
           item.escolha || "",
+          item.cc_convidado || item.funcionarios?.cc || "",
         ]),
       ];
 

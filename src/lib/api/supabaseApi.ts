@@ -1,4 +1,11 @@
-import { format } from "date-fns";
+import {
+  addDays,
+  format,
+  isAfter,
+  setHours,
+  setMinutes,
+  setSeconds,
+} from "date-fns";
 import supabase from "../supabase";
 
 const hoje = format(new Date(), "yyyy-MM-dd");
@@ -81,6 +88,23 @@ export async function updateMenu(id: number, payload: any) {
     console.error("Erro ao atualizar cardápio:", error);
   }
   return data;
+}
+
+export async function getTomorrowMenu() {
+  const agora = new Date();
+  const limiteHoje = setSeconds(setMinutes(setHours(agora, 17), 0), 0);
+  const dataBase = isAfter(agora, limiteHoje) ? addDays(agora, 1) : agora;
+  const dataConsulta = format(dataBase, "yyyy-MM-dd");
+  const { data: menuDia, error: errorDia } = await supabase
+    .from("cardapio")
+    .select()
+    .eq("data", dataConsulta)
+    .single();
+  if (errorDia) {
+    console.error("Erro ao buscar cardápio:", errorDia);
+    return null;
+  }
+  return menuDia;
 }
 
 export async function getTodayMenu() {
