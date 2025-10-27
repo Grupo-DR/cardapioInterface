@@ -95,10 +95,10 @@ export default function HomePage() {
       }
 
       const sheetData = [
-        ["Nome", "Centro de Custo", "Escolha"],
-        ...data.map((item: any) => [
-          item.nome_convidado || item.funcionarios?.nome || "",
-          item.escolha || "",
+        ["Nome", "Escolha", "Centro de Custo"],
+        ...data.map((item) => [
+          (item.nome_convidado || item.funcionarios?.nome || "").toUpperCase(), // Nome em maiúsculas
+          (item.escolha || "").toUpperCase(), // Escolha em maiúsculas
           item.cc_convidado || item.funcionarios?.cc || "",
         ]),
       ];
