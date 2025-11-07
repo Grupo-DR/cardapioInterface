@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Divide } from "lucide-react";
 
 export const AddEmploye = () => {
   const [employes, setEmployes] = useState<any[] | null>([]);
@@ -72,6 +73,13 @@ export const AddEmploye = () => {
         {" "}
         <PlusIcon /> Adicionar Funcionário
       </Button>
+      <div className="flex items-center my-4">
+        <div className="flex-1 h-px bg-gray-300"></div>
+        <span className="mx-4 text-gray-700">
+          {employes?.length} funcionários
+        </span>
+        <div className="flex-1 h-px bg-gray-300"></div>
+      </div>
       {employes &&
         employes.map(({ id, nome, cc, numero }) => {
           const { formatado } = formatarTelefone(numero);
