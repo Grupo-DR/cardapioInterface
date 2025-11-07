@@ -5,6 +5,7 @@ import {
   setHours,
   setMinutes,
   setSeconds,
+  startOfWeek,
 } from "date-fns";
 import supabase from "../supabase";
 
@@ -120,6 +121,29 @@ export async function getTodayMenu() {
   }
 
   return menuDia;
+}
+
+export async function getWeekMenus() {
+  const hoje = new Date();
+  const inicioSemana = startOfWeek(hoje, { weekStartsOn: 1 });
+  
+  // Gera as datas da semana (segunda a sexta)
+  const datasSemana = Array.from({ length: 5 }, (_, i) =>
+    format(addDays(inicioSemana, i), "yyyy-MM-dd")
+  );
+
+  const { data: menus, error } = await supabase
+    .from("cardapio")
+    .select()
+    .in("data", datasSemana)
+    .order("data", { ascending: true });
+
+  if (error) {
+    console.error("Erro ao buscar cardápios da semana:", error);
+    return [];
+  }
+
+  return menus || [];
 }
 
 export async function getAnswers() {

@@ -31,7 +31,7 @@ export default function Header() {
             className="bg-slate-200 hover:bg-slate-300 py-1 px-2 rounded"
             to="/menu"
           >
-            Cádapio do dia
+            Cádapio da semana
           </Link>
           <Link
             className="bg-slate-200 hover:bg-slate-300 py-1 px-2 rounded"

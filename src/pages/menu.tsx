@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { getTodayMenu, updateMenu } from "@/lib/api/supabaseApi";
+import { getWeekMenus, updateMenu } from "@/lib/api/supabaseApi";
 import { DotsThreeVerticalIcon } from "@phosphor-icons/react";
 import { format, parseISO } from "date-fns";
 import { useEffect, useState } from "react";
@@ -12,19 +12,20 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export const Menu = () => {
-  const [menu, setMenu] = useState<any>(null);
+  const [menus, setMenus] = useState<any[]>([]);
   const [openEdit, setOpenEdit] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState<any>(null);
 
   async function fetchData() {
-    const data = await getTodayMenu();
-    setMenu(data);
+    const data = await getWeekMenus();
+    setMenus(data);
   }
 
   function handleEdit(m: any) {
-    setSelectedMenu(m);
+    setSelectedMenu({ ...m });
     setOpenEdit(true);
   }
 
@@ -32,37 +33,74 @@ export const Menu = () => {
     fetchData();
   }, []);
 
+  const getDayName = (dateString: string) => {
+    const date = parseISO(dateString);
+    const dayNames = [
+      "Domingo",
+      "Segunda-feira",
+      "Terça-feira",
+      "Quarta-feira",
+      "Quinta-feira",
+      "Sexta-feira",
+      "Sábado",
+    ];
+    return dayNames[date.getDay()];
+  };
+
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Cardápio atual</h1>
+      <h1 className="text-2xl font-bold mb-6">Cardápios da Semana Atual</h1>
 
-      {menu && (
-        <div
-          key={menu.id}
-          className="my-2 p-2 bg-slate-200 rounded items-center flex justify-between"
-        >
-          <div>
-            <p>Data: {format(parseISO(menu.data), "dd/MM/yyyy")}</p>
-            <p>Primeira opção: {menu.primeira}</p>
-            <p>Segunda opção: {menu.segunda}</p>
-            <p>Guarnição: {menu.guarnicao}</p>
-          </div>
-          <Button
-            variant="secondary"
-            size="icon"
-            className="size-8"
-            onClick={() => handleEdit(menu)}
-          >
-            <DotsThreeVerticalIcon weight="bold" />
-          </Button>
+      {menus.length === 0 ? (
+        <p className="text-muted-foreground">
+          Nenhum cardápio encontrado para esta semana.
+        </p>
+      ) : (
+        <div className="space-y-4">
+          {menus.map((menu) => (
+            <div
+              key={menu.id}
+              className="p-4 bg-slate-200 rounded-lg items-center flex justify-between shadow-sm"
+            >
+              <div className="flex-1">
+                <p className="font-semibold text-lg">
+                  {getDayName(menu.data)} - {format(parseISO(menu.data), "dd/MM/yyyy")}
+                </p>
+                <div className="mt-2 space-y-1">
+                  <p>
+                    <span className="font-medium">Primeira opção:</span>{" "}
+                    {menu.primeira || "-"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Segunda opção:</span>{" "}
+                    {menu.segunda || "-"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Guarnição:</span>{" "}
+                    {menu.guarnicao || "-"}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="size-8 ml-4"
+                onClick={() => handleEdit(menu)}
+              >
+                <DotsThreeVerticalIcon weight="bold" />
+              </Button>
+            </div>
+          ))}
         </div>
       )}
+
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar Cardápio</DialogTitle>
             <DialogDescription>
-              Atualize as informações do cardápio selecionado.
+              {selectedMenu &&
+                `Atualize as informações do cardápio de ${getDayName(selectedMenu.data)} - ${format(parseISO(selectedMenu.data), "dd/MM/yyyy")}.`}
             </DialogDescription>
           </DialogHeader>
           {selectedMenu && (
@@ -71,7 +109,7 @@ export const Menu = () => {
                 <Label htmlFor="primeira">Primeira opção</Label>
                 <Input
                   id="primeira"
-                  value={selectedMenu.primeira}
+                  value={selectedMenu.primeira || ""}
                   onChange={(e) =>
                     setSelectedMenu({
                       ...selectedMenu,
@@ -84,7 +122,7 @@ export const Menu = () => {
                 <Label htmlFor="segunda">Segunda opção</Label>
                 <Input
                   id="segunda"
-                  value={selectedMenu.segunda}
+                  value={selectedMenu.segunda || ""}
                   onChange={(e) =>
                     setSelectedMenu({
                       ...selectedMenu,
@@ -97,7 +135,7 @@ export const Menu = () => {
                 <Label htmlFor="guarnicao">Guarnição</Label>
                 <Input
                   id="guarnicao"
-                  value={selectedMenu.guarnicao}
+                  value={selectedMenu.guarnicao || ""}
                   onChange={(e) =>
                     setSelectedMenu({
                       ...selectedMenu,
@@ -117,9 +155,16 @@ export const Menu = () => {
                     guarnicao: selectedMenu.guarnicao,
                   });
                   if (atualizado && atualizado.length > 0) {
-                    setMenu(atualizado[0]);
+                    setMenus((prev) =>
+                      prev.map((m) =>
+                        m.id === atualizado[0].id ? atualizado[0] : m
+                      )
+                    );
+                    toast.success("Cardápio atualizado com sucesso!");
+                    setOpenEdit(false);
+                  } else {
+                    toast.error("Erro ao atualizar cardápio.");
                   }
-                  setOpenEdit(false);
                 }}
               >
                 Salvar
